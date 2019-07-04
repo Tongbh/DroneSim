@@ -84,10 +84,10 @@ def hover(height):#悬停
 def FlyAhead(Time,height):
   global throttle,pitch,yaw_rate
 
-  #pitch=0.0
-  #roll=0.0
-  #throttle=0.6125
-  #yaw_rate=0.0
+  pitch=0.0
+  roll=0.0
+  throttle=0.6125
+  yaw_rate=0.0
   t=pid.GetTime()#开始时程序运行的总时间
   print(t)
 
@@ -106,10 +106,10 @@ def FlyHorizontal(Time,height,side):#横向移动 4向左 6向右
   global throttle,pitch,yaw_rate
   #pid = PID()
 
-  #pitch=0.0
-  #roll=0.0
-  #throttle=0.6125
-  #yaw_rate=0.0
+  pitch=0.0
+  roll=0.0
+  throttle=0.6125
+  yaw_rate=0.0
   t=pid.GetTime()#开始时程序运行的总时间
   print(t)
 
@@ -129,9 +129,9 @@ def TurnAngle(Time,side,height):#转动 4向左 6向右
   #pid = PID()
 
   pitch=0.0
-  #roll=0.0
-  #throttle=0.6125
-  #yaw_rate=0.0
+  roll=0.0
+  throttle=0.6125
+  yaw_rate=0.0
   t=pid.GetTime()#开始时程序运行的总时间
   print(t)
 
