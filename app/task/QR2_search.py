@@ -8,14 +8,16 @@ import matplotlib.pyplot as plt
 import time
 import os
 
-class RealSense:
+class Task_2:
 
 	def __init__(self,motion):
 		self.pipeline = rs.pipeline()
 		self.config = rs.config()
 		self.motion = motion
+		# self.cap = cv2.VideoCapture(0)
 
 	def start_pipeline(self):
+		# use these fuctions to get the color image and the depth image, if we could manage to install librealsense2 and pyrealsense2 (fuck GFW 🌸🐔)
 		self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 		self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 		self.pipeline.start(self.config)
@@ -47,6 +49,10 @@ class RealSense:
 
 		return depth_colormap
 
+
+
+
+
 	def get_dis(self,x_pos,y_pos):
 		count = 0
 		dep_frame = self.frames.get_depth_frame()
@@ -57,6 +63,9 @@ class RealSense:
 		#distance = dep_frame.get_distance(x_pos,y_pos)
 		if count!=0:
 			return distance/count
+		else:
+			print('failed to get the distance')
+			return -1
 
 	def get_scene_in_range(self,n):
 		img_color = self.get_colorimage()
@@ -144,7 +153,7 @@ class RealSense:
 		return True, else return False 
 	'''
 	def search(self):
-
+		
 		color_image = self.get_colorimage()
     	depth_image = self.get_depthimage()
       	directory = {}
@@ -486,8 +495,9 @@ as the top of the stumps are in shape of rectangle
 '''
 	fly with map(ver.2)
 	we should consider about stumps in the next line
+	not finished yet
 '''
-	def fly_with_map(self,map,count):
+	def fly_with_map_ver2(self,map,count):
 			# two special condition: first and next line
 			if count == 1:
 				# first_path = np.array([320,240])-np.array([map[0][0],map[0][1]])
@@ -520,12 +530,6 @@ as the top of the stumps are in shape of rectangle
 
 				a = map[count+1][0]-map[count][0]
 				b = map[count+1][1]-map[count][1]
-
-
-
-
-
-
 
 
 
@@ -562,30 +566,89 @@ as the top of the stumps are in shape of rectangle
 					# self.motion.flyCmd('stop')
 					# time.sleep(0.5)
 
+	def fly_with_route(self):
+		# we don't need to fly with such a disgusting map, try only to fly with fixed route, because the position of the stump is fixed, and they are straight
+		fly_flag = np.array([1,1,-1,-1,-1,1,1,1,0])
+		for i in range(0,9):
+			cur_flag = fly_flag(n)
+			next_flag = fly_flag(n+1)
+			
+			if next_flag = cur_flag:
+				# if the flags are the same
+				if cur_flag>0:
+					print('go right')
+					while self.search is not True:
+						self.motion.flyCmd('moveright')
+					# calculate the distance in front of the UAV, stop if the distance is less than 1 meter.
+					ds = self.get_dis()
+					if ds<=1 and ds>0:
+						self.motion.flyCmd('stop')
+						time.sleep(2)
+					print('arrive check point: '+str(i)+'\n')
 
+				if cur_flag<0:
+					print('go left')
+					while self.search is not True:
+						self.motion.flyCmd('moveleft')
+					# calculate the distance in front of the UAV, stop if the distance is less than 1 meter.
+					ds = self.get_dis()
+					if ds<=1 and ds>0:
+						self.motion.flyCmd('stop')
+						time.sleep(2)
+					print('arrive check point: '+str(i)+'\n')
+
+			if next_flag != cur_flag:
+				# if the flags are not the same
+				print('moving to the next line')
+				if cur_flag>0:
+					self.motion.flyCmd('moveright')
+					time.sleep(3)
+					self.motion.flyCmd('stop')
+					self.motion.flyCmd('forward')
+					time.sleep(3)
+					self.motion.flyCmd('stop')
+
+				if cur_flag<0:
+					self.motion.flyCmd('moveleft')
+					time.sleep(3)
+					self.motion.flyCmd('stop')
+					self.motion.flyCmd('forward')
+					time.sleep(3)
+					self.motion.flyCmd('stop')
+
+
+						
 
 	'''
 	the main function that controls the UAV to finish task 2
 	'''
 	def task_main(self):
-        
-        self.get_stump_map_2()
+       # version 1
+       #   self.get_stump_map_2()
 
-        array = [1,2,3,4,5,6,7,8,9,10]
-        stump_conut = 1
-        while stump_conut<11:
-        	self.fly_with_map(stump_conut)
-        	#time.sleep(10)
-        	print('stump: '+str(stump_conut)+' arrived!')
-        	stump = stump+1
-        	#if self.search() is True:
-    		self.flyCmd('stop')
-    		time.sleep(1)
-    		continue
+       #   #array = [1,2,3,4,5,6,7,8,9,10]
+       #   stump_conut = 1
+       #   while stump_conut<11:
+       #   	self.fly_with_map(stump_conut)
+       #   	#time.sleep(10)
+       #   	print('stump: '+str(stump_conut)+' arrived!')
+       #   	stump = stump+1
+       #   	#if self.search() is True:
+    			# self.flyCmd('stop')
+    			# time.sleep(1)
+    			# continue
+
+    	# version 2
+    	# self.fly_with_route()
+
+    	# version 3
+    	self.fly_with_route()
         print('task finished!')
         print('landing...')
+        self.motion.flyCmd('moveleft')
+        time.sleep(2)
         self.motion.flyCmd('forward')
-        time.sleep(1)
+        time.sleep(4)
         self.motion.flyCmd('stop')
         time.sleep(0.5)
         self.motion.land()
